@@ -89,6 +89,22 @@ int main()
     return 0;
 }
 
+
+// search student by recursion: 
+int searchStudentRecursive(const string arr[], const string &key, int index) 
+{
+    if (index < 0)
+    {
+         return -1;
+    }
+    if (arr[index] == key)
+    {
+        return index;
+    }
+    return searchStudentRecursive(arr, key, index - 1);
+}
+
+
 // Add student function:
 void addStudent()
 {
@@ -183,6 +199,7 @@ void viewStudents()
     // Closing divider to finish the table view
        cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_DUES,'-')<<"\n";
 }
+
 // Generate single student bill
 void generateBill(const string &rNo)
 {
@@ -279,4 +296,14 @@ void generateMonthSummary()
     cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_BFB + W_LDB + W_DUES + W_TOT,'-')<<"\n";
 }
 
+
+// bill calculation using recursion:
+int calculateBillRecursive(int *arr, int size, int rate)
+{
+    if (size <= 0)
+    {
+        return 0;
+    }
+    return arr[size - 1] * rate + calculateBillRecursive(arr, size - 1, rate);
+}
 
