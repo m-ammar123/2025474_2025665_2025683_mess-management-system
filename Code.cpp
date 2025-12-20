@@ -183,68 +183,100 @@ void viewStudents()
     // Closing divider to finish the table view
        cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_DUES,'-')<<"\n";
 }
-
-// Mark attendance
-void markAttendance() 
- {
-    cout << "\n================= MARK ATTENDANCE ====================\n";
-    string rNo;
-    int choice;
-    cout << " Enter Registration Number: ";
-    cin >> rNo;
-    //using recursion to search for a student by entering registration number to mark attendance
+// Generate single student bill
+void generateBill(const string &rNo)
+{
+    cout << "\n===================== BILL DETAILS ===================\n";
     int index = searchStudentRecursive(regNo, rNo, totalStudents - 1);
-    //if the index is -1 then no student will be showed
-    if (index == -1)
-     {
+    if (index == -1) 
+    {
         cout << " Student not found!\n";
         return;
     }
-    // this part of code will mark attendance of student if he/she attend any meal
-    cout << " Select meal attended:\n";
-    cout << "  1) Breakfast\n";
-    cout << "  2) Lunch + Dinner\n";
-    cout << "  3) Both Breakfast and Lunch+Dinner\n";
-    cout << " Enter choice: ";
-    cin >> choice;
-    //calling updated function to update attendance
-    updateAttendance(&breakfast[index], &lunchDinner[index], choice);
-    cout << " Attendance updated successfully!\n";
+
+    int breakfastBill   = breakfast[index]   * RATE_BREAKFAST;
+    int lunchDinnerBill = lunchDinner[index] * RATE_LUNCH_DINNER;
+    int totalBill       = breakfastBill + lunchDinnerBill + pendingDues[index];
+
+    // Key-value style aligned output
+    const int K = 22; // key width
+
+    cout << left << setw(K) << " Name"              << ": " << studentName[index] << "\n";
+    cout << left << setw(K) << " Registration No"   << ": " << regNo[index]       << "\n";
+    cout << left << setw(K) << " Hostel"            << ": " << hostel[index]      << "\n";
+    cout << left << setw(K) << " Room No"           << ": " << room[index]        << "\n";
+    cout << string(56, '-') << "\n";
+    cout << left << setw(K) << " Breakfast Days"
+         << ": " << setw(4) << breakfast[index]
+         << " x " << setw(5) << RATE_BREAKFAST
+         << " = " << breakfastBill << "\n";
+    cout << left << setw(K) << " Lunch+Dinner Days"
+         << ": " << setw(4) << lunchDinner[index]
+         << " x " << setw(5) << RATE_LUNCH_DINNER
+         << " = " << lunchDinnerBill << "\n";
+    cout << left << setw(K) << " Pending Dues"      << ": " << pendingDues[index] << "\n";
+    cout << string(56, '-') << "\n";
+    cout << left << setw(K) << " Total (Incl. Dues)"<< ": " << totalBill          << "\n";
     cout << "------------------------------------------------------------\n";
 }
 
-// Update attendance using pointers
-void updateAttendance(int *bPtr, int *lPtr, int choice) 
+// Generate month-end summary
+void generateMonthSummary() 
 {
-    switch (choice)
+    cout << "\n================ MONTH-END MESS SUMMARY ===============\n";
+    if (totalStudents == 0) 
     {
-        case 1: (*bPtr)++; break;
-        case 2: (*lPtr)++; break;
-        case 3: (*bPtr)++; (*lPtr)++; break;
-        default: cout << " Invalid choice!\n"; break;
+        cout << " No students enrolled.\n";
+        return;
     }
+
+    // Column layout
+    const int W_REG   = 12;
+    const int W_NAME  = 16;
+    const int W_HOST  = 12;
+    const int W_ROOM  = 8;
+    const int W_BF    = 8;
+    const int W_LD    = 10;
+    const int W_BFB   = 12;  // Breakfast Bill
+    const int W_LDB   = 12;  // Lunch+Dinner Bill
+    const int W_DUES  = 10;
+    const int W_TOT   = 12;
+
+    // Header
+    cout << left << setw(W_REG) << "RegNo"
+         << setw(W_NAME)        << "Name"
+         << setw(W_HOST)        << "Hostel"
+         << setw(W_ROOM)        << "Room"
+         << right << setw(W_BF) << "Break."
+         << setw(W_LD)          << "L+D"
+         << setw(W_BFB)         << "Bf Bill"
+         << setw(W_LDB)         << "L+D Bill"
+         << setw(W_DUES)        << "Dues"
+         << setw(W_TOT)         << "Total"
+         << "\n";
+
+    cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_BFB + W_LDB + W_DUES + W_TOT, '-') << "\n";
+
+    for (int i = 0; i < totalStudents; i++) 
+    {
+        int breakfastBill   = breakfast[i]   * RATE_BREAKFAST;
+        int lunchDinnerBill = lunchDinner[i] * RATE_LUNCH_DINNER;
+        int totalBill       = breakfastBill + lunchDinnerBill + pendingDues[i];
+
+        cout << left  << setw(W_REG) << regNo[i]
+             << setw(W_NAME)         << studentName[i]
+             << setw(W_HOST)         << hostel[i]
+             << setw(W_ROOM)         << room[i]
+             << right << setw(W_BF)  << breakfast[i]
+             << setw(W_LD)           << lunchDinner[i]
+             << setw(W_BFB)          << breakfastBill
+             << setw(W_LDB)          << lunchDinnerBill
+             << setw(W_DUES)         << pendingDues[i]
+             << setw(W_TOT)          << totalBill
+             << "\n";
+    }
+
+    cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_BFB + W_LDB + W_DUES + W_TOT,'-')<<"\n";
 }
 
-// search students using recursion:
-int searchStudentRecursive(const string arr[], const string &key, int index)
-{
-    if (index < 0)
-    {
-        return -1;
-    }
-    if (arr[index] == key)
-    {
-        return index;
-    }
-    return searchStudentRecursive(arr, key, index - 1);
-}
 
-// bill calculation using recursion:  
-int calculateBillRecursive(int *arr, int size, int rate)
-{
-    if (size <= 0) 
-    {
-        return 0;
-    }
-    return arr[size - 1] * rate + calculateBillRecursive(arr, size - 1, rate);
-}
