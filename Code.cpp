@@ -50,8 +50,8 @@ int main()
         cout << " 4) Generate Bill for a Student\n";
         cout << " 5) Generate Month-End Summary\n";
         cout << " 6) Save Data to File\n";
-        cout << " 7) Exit\n";
-        cout << " 8) Clear Dues\n";
+        cout << " 7) Clear Dues\n";
+        cout << " 8) Exit\n";
         cout << "------------------------------------------------------------\n";
         cout << " Enter your choice: ";
         cin >> choice;
@@ -77,14 +77,14 @@ int main()
                   break;
             case 6: saveToFile(); 
                   break;
-            case 7: 
-                  cout << " Exiting program...\n"; break;
-            case 8: clearDues(); 
+            case 7: clearDues(); 
                   break;
+            case 8: 
+                  cout << " Exiting program...\n"; break;
             default: 
                   cout << " Invalid choice!\n";
         }
-    } while (choice != 7);
+    } while (choice != 8);
 
     return 0;
 }
@@ -199,6 +199,52 @@ void viewStudents()
     // Closing divider to finish the table view
        cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_DUES,'-')<<"\n";
 }
+
+// Mark attendance function:
+void markAttendance()
+{
+    cout << "\n================= MARK ATTENDANCE ====================\n";
+    string rNo;
+    int choice;
+    cout << " Enter Registration Number: ";
+    cin >> rNo;
+
+    int index = searchStudentRecursive(regNo, rNo, totalStudents - 1);
+    if (index == -1)
+    {
+        cout << " Student not found!\n";
+        return;
+    }
+
+    cout << " Select meal attended:\n";
+    cout << "  1) Breakfast\n";
+    cout << "  2) Lunch + Dinner\n";
+    cout << "  3) Both Breakfast and Lunch+Dinner\n";
+    cout << " Enter choice: ";
+    cin >> choice;
+
+    updateAttendance(&breakfast[index], &lunchDinner[index], choice);
+    cout << " Attendance updated successfully!\n";
+    cout << "------------------------------------------------------------\n";
+}
+
+
+// Update attendance using pointers
+void updateAttendance(int *bPtr, int *lPtr, int choice)
+{
+    switch (choice)
+    {
+        case 1: (*bPtr)++; 
+            break;
+        case 2: (*lPtr)++; 
+            break;
+        case 3: (*bPtr)++; (*lPtr)++; 
+            break;
+        default: 
+            cout << " Invalid choice!\n"; break;
+    }
+}
+
 
 // Generate single student bill
 void generateBill(const string &rNo)
@@ -352,45 +398,66 @@ void clearDues()
     cout << "------------------------------------------------------------\n";
 }
 
-// Save data to file 
-void saveToFile() 
+//Function to save from file: 
+void saveToFile()
 {
     ofstream file("mess_data.txt");
-    file << totalStudents << "\n";
-    for (int i = 0; i < totalStudents; i++) 
-    {
-        file << regNo[i] << " "
-             << studentName[i] << " "
-             << hostel[i] << " "
-             << room[i] << " "
-             << breakfast[i] << " "
-             << lunchDinner[i] << " "
-             << pendingDues[i] << "\n";
+    if (!file) {
+        cout << " Failed to open file for writing.\n";
+        return;
+    }
+
+    file << totalStudents << '\n';
+    for (int i = 0; i < totalStudents; i++) {
+        file << std::quoted(regNo[i])      << ' '
+             << std::quoted(studentName[i])<< ' '
+             << std::quoted(hostel[i])     << ' '
+             << std::quoted(room[i])       << ' '
+             << breakfast[i]               << ' '
+             << lunchDinner[i]             << ' '
+             << pendingDues[i]             << '\n';
     }
     file.close();
     cout << " Data saved to file successfully.\n";
 }
 
-// Load data from file 
-void loadFromFile() 
-{
-    ifstream file("mess_data.txt");
 
-    if (!file) 
-    {
+
+void loadFromFile() {
+    ifstream file("mess_data.txt");
+    if (!file) return;
+
+    int count = 0;
+    if (!(file >> count)) { // failed to read count
+        file.close();
         return;
     }
 
-    file >> totalStudents;
-    for (int i = 0; i < totalStudents; i++) 
-    {
-        file >> regNo[i]
-             >> studentName[i]
-             >> hostel[i]
-             >> room[i]
-             >> breakfast[i]
-             >> lunchDinner[i]
-             >> pendingDues[i];
+    totalStudents = 0; // we will fill safely
+    for (int i = 0; i < count && i < MAX; ++i) {
+        string r, name, h, rm;
+        int bf = 0, ld = 0, dues = 0;
+
+        // read quoted strings to preserve spaces
+        if (!(file >> std::quoted(r)
+                   >> std::quoted(name)
+                   >> std::quoted(h)
+                   >> std::quoted(rm)
+                   >> bf >> ld >> dues)) {
+            // stop on malformed line
+            break;
+        }
+
+        regNo[i]        = r;
+        studentName[i]  = name;
+        hostel[i]       = h;
+        room[i]         = rm;
+        breakfast[i]    = bf;
+        lunchDinner[i]  = ld;
+        pendingDues[i]  = dues;
+
+        totalStudents++;
     }
+
     file.close();
 }
