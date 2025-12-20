@@ -184,3 +184,43 @@ void viewStudents()
        cout << string(W_REG + W_NAME + W_HOST + W_ROOM + W_BF + W_LD + W_DUES,'-')<<"\n";
 }
 
+// Mark attendance
+void markAttendance() 
+ {
+    cout << "\n================= MARK ATTENDANCE ====================\n";
+    string rNo;
+    int choice;
+    cout << " Enter Registration Number: ";
+    cin >> rNo;
+//using recursion to search for a student by entering registration number to mark attendance
+    int index = searchStudentRecursive(regNo, rNo, totalStudents - 1);
+    //if the index is -1 then no student will be showed
+    if (index == -1)
+     {
+        cout << " Student not found!\n";
+        return;
+    }
+// this part of code will mark attendance of student if he/she attend any meal
+    cout << " Select meal attended:\n";
+    cout << "  1) Breakfast\n";
+    cout << "  2) Lunch + Dinner\n";
+    cout << "  3) Both Breakfast and Lunch+Dinner\n";
+    cout << " Enter choice: ";
+    cin >> choice;
+//calling updated function to update attendance
+  updateAttendance(&breakfast[index], &lunchDinner[index], choice);
+    cout << " Attendance updated successfully!\n";
+    cout << "------------------------------------------------------------\n";
+}
+
+// Update attendance using pointers
+void updateAttendance(int *bPtr, int *lPtr, int choice) 
+{
+    switch (choice)
+    {
+        case 1: (*bPtr)++; break;
+        case 2: (*lPtr)++; break;
+        case 3: (*bPtr)++; (*lPtr)++; break;
+        default: cout << " Invalid choice!\n"; break;
+    }
+}
