@@ -192,7 +192,7 @@ void markAttendance()
     int choice;
     cout << " Enter Registration Number: ";
     cin >> rNo;
-//using recursion to search for a student by entering registration number to mark attendance
+    //using recursion to search for a student by entering registration number to mark attendance
     int index = searchStudentRecursive(regNo, rNo, totalStudents - 1);
     //if the index is -1 then no student will be showed
     if (index == -1)
@@ -200,15 +200,15 @@ void markAttendance()
         cout << " Student not found!\n";
         return;
     }
-// this part of code will mark attendance of student if he/she attend any meal
+    // this part of code will mark attendance of student if he/she attend any meal
     cout << " Select meal attended:\n";
     cout << "  1) Breakfast\n";
     cout << "  2) Lunch + Dinner\n";
     cout << "  3) Both Breakfast and Lunch+Dinner\n";
     cout << " Enter choice: ";
     cin >> choice;
-//calling updated function to update attendance
-  updateAttendance(&breakfast[index], &lunchDinner[index], choice);
+    //calling updated function to update attendance
+    updateAttendance(&breakfast[index], &lunchDinner[index], choice);
     cout << " Attendance updated successfully!\n";
     cout << "------------------------------------------------------------\n";
 }
@@ -223,4 +223,28 @@ void updateAttendance(int *bPtr, int *lPtr, int choice)
         case 3: (*bPtr)++; (*lPtr)++; break;
         default: cout << " Invalid choice!\n"; break;
     }
+}
+
+// search students using recursion:
+int searchStudentRecursive(const string arr[], const string &key, int index)
+{
+    if (index < 0)
+    {
+        return -1;
+    }
+    if (arr[index] == key)
+    {
+        return index;
+    }
+    return searchStudentRecursive(arr, key, index - 1);
+}
+
+// bill calculation using recursion:  
+int calculateBillRecursive(int *arr, int size, int rate)
+{
+    if (size <= 0) 
+    {
+        return 0;
+    }
+    return arr[size - 1] * rate + calculateBillRecursive(arr, size - 1, rate);
 }
