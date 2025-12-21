@@ -307,3 +307,90 @@ int calculateBillRecursive(int *arr, int size, int rate)
     return arr[size - 1] * rate + calculateBillRecursive(arr, size - 1, rate);
 }
 
+// Clear dues function
+void clearDues()
+{
+    cout << "\n===================== CLEAR DUES ======================\n";
+    string rNo;
+    cout << " Enter Registration Number to clear dues: ";
+    cin >> rNo;
+
+    int index = searchStudentRecursive(regNo, rNo, totalStudents - 1);
+    if (index == -1) 
+    {
+        cout << " Student not found!\n";
+        return;
+    }
+
+    int breakfastBill   = breakfast[index]   * RATE_BREAKFAST;
+    int lunchDinnerBill = lunchDinner[index] * RATE_LUNCH_DINNER;
+    int totalBill       = breakfastBill + lunchDinnerBill + pendingDues[index];
+
+    cout << " Current total (including dues): " << totalBill << "\n";
+    int payment;
+    cout << " Enter amount paid: ";
+    cin >> payment;
+
+    if (payment >= totalBill) 
+    {
+        pendingDues[index] = 0;
+        cout << " Dues cleared.\n";
+        if (payment > totalBill) 
+        {
+            cout << " Change to return: " << (payment - totalBill) << "\n";
+        }
+    } 
+    else 
+    {
+        pendingDues[index] = totalBill - payment;
+        cout << " Partial payment received. Pending dues carried forward: " << pendingDues[index] << "\n";
+    }
+
+    // Reset attendance for next month
+    breakfast[index] = 0;
+    lunchDinner[index] = 0;
+    cout << "------------------------------------------------------------\n";
+}
+
+// Save data to file 
+void saveToFile() 
+{
+    ofstream file("mess_data.txt");
+    file << totalStudents << "\n";
+    for (int i = 0; i < totalStudents; i++) 
+    {
+        file << regNo[i] << " "
+             << studentName[i] << " "
+             << hostel[i] << " "
+             << room[i] << " "
+             << breakfast[i] << " "
+             << lunchDinner[i] << " "
+             << pendingDues[i] << "\n";
+    }
+    file.close();
+    cout << " Data saved to file successfully.\n";
+}
+
+// Load data from file 
+void loadFromFile() 
+{
+    ifstream file("mess_data.txt");
+
+    if (!file) 
+    {
+        return;
+    }
+
+    file >> totalStudents;
+    for (int i = 0; i < totalStudents; i++) 
+    {
+        file >> regNo[i]
+             >> studentName[i]
+             >> hostel[i]
+             >> room[i]
+             >> breakfast[i]
+             >> lunchDinner[i]
+             >> pendingDues[i];
+    }
+    file.close();
+}
